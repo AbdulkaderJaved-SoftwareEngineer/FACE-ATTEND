@@ -1,13 +1,18 @@
 from tkinter.constants import COMMAND
 from typing import Text
+from kivy.uix.scrollview import ScrollView
+from kivymd.uix.list import MDList, ThreeLineListItem, ThreeLineAvatarListItem, OneLineListItem, OneLineIconListItem
+from kivymd.uix.list import IconLeftWidget,ImageLeftWidget
 from kivymd.app import MDApp
 from kivymd.uix.label import MDLabel
 from kivymd.uix.button import MDFlatButton, MDFloatingActionButton, MDRectangleFlatButton, MDIconButton
 from kivy.uix.screenmanager import Screen,ScreenManager
+from kivy.uix.scrollview import ScrollView
 from kivymd.uix.textfield import MDTextField,MDTextFieldRect
 from kivy.lang import Builder
 from kivymd.toast import toast
 import cv2
+from kivymd.utils import asynckivy
 import numpy as np
 import face_recognition
 import os
@@ -20,6 +25,7 @@ from kivy.core.window import Window
 from playsound import playsound
 from gtts import gTTS
 
+
 Window.size = (800,400)
 
 newScreen = """
@@ -27,6 +33,7 @@ ScreenManager:
    
     MenuScreen:
     ProfileScreen:
+    Gallery:
 <MenuScreen>:
     name : 'menu'
     BoxLayout:
@@ -38,24 +45,30 @@ ScreenManager:
             text:""
             halign : 'center'
         Image:
-            source  : "C:\Desktop\Face_Attend\SidePic.png"
+            source  : "C:/Desktop/Face_Attend/fr123.png"
             pos_hint: {'center_x':0.7,'center_y':0.2}
-            size_hint : (3,3)
+            size_hint_x : 12
+            height : "20dp"
+            width : "80dp"
+            size_hint_y : 12
     
 
     
         
     MDRectangleFlatIconButton:
         icon : 'account-supervisor-outline'
-        text:'Add a New Profile' 
+        text:'Add a New Profile'
+         
         
         pos_hint:{'center_x':0.2 , 'center_y':0.7}
         on_press : 
             root.manager.current = 'Profile'
             root.manager.transition.direction = 'left'
     MDFloatingActionButton:
-        icon :"book"
+        icon :"microsoft-excel"
         pos_hint : {'center_x':0.1,'center_y':0.1}
+        on_release : app.op()
+        
     MDRectangleFlatIconButton:
         icon : 'calendar-alert'
         text:'Take Attendance ' 
@@ -66,10 +79,21 @@ ScreenManager:
         icon : 'cancel'
         text:'Quit' 
         
-        pos_hint:{'center_x':0.2 , 'center_y':0.3}
+        pos_hint:{'center_x':0.2 , 'center_y':0.1}
         on_press : 
             root.manager.transition.direction = 'right'
             root.manager.current = 'Profile'
+    MDRectangleFlatIconButton:
+        icon : 'group'
+        text:'See Peoples' 
+        
+        pos_hint:{'center_x':0.2 , 'center_y':0.3}
+        on_press :
+            root.manager.transition.direction = 'right'
+            root.manager.current = 'Gall'
+        
+    
+        
 
 
 
@@ -100,7 +124,7 @@ ScreenManager:
     MDRectangleFlatIconButton:
     
         icon : "camera"
-        text : 'OpenCamera'
+        text : 'Capture'
         
         pos_hint:{'center_x':0.8 , 'center_y':0.3}
         on_press : app.click(self)
@@ -129,8 +153,28 @@ ScreenManager:
             pos_hint: {'center_x':0.3,'center_y':0.2}
             size_hint : (3,3)
             
+ 
+ 
         
-        
+<Gallery>
+    name:'Gall'
+    MDScrollViewRefreshLayout:
+        BoxLayout:
+            ScrollView:
+                MDList:
+                    id:con   
+                    ImageLeftWidget:
+                        id : im
+                     
+    MDFloatingActionButton:
+        icon:'arrow-left-thick'
+        on_press:root.manager.current = 'menu'
+            
+                    
+            
+            
+            
+   
     
         
 
@@ -150,13 +194,28 @@ class MenuScreen(Screen):
 
 class ProfileScreen(Screen):
     pass
+class Gallery(Screen):
+    pass
 
 sm = ScreenManager()
 sm.add_widget(MenuScreen(name  = 'menu'))
 sm.add_widget(ProfileScreen(name  = 'Profile'))
+sm.add_widget(Gallery(name = 'Gall'))
 
 
 class DemoApp(MDApp):
+    #this is for opening the excel sheet
+
+    def op(self):
+        file_loc = "C:\Desktop\Face_Attend\output.csv"
+        os.system('"%s"' % file_loc)
+
+
+
+
+
+
+
 
 
 
@@ -203,8 +262,9 @@ class DemoApp(MDApp):
     def soundplayer(self):
         username1 = self.root.get_screen('Profile').ids.naam.text
         username2 = self.root.get_screen('Profile').ids.rollno.text
-        audio = gTTS("Registration Successfull of  " + username1)
+        audio = gTTS("Appka Registeration safal hoa  " + username1,lang='hi')
         AudioSave = str(username1) + ".mp3"
+
         audio.save(AudioSave)
 
         playsound(AudioSave)
@@ -222,6 +282,7 @@ class DemoApp(MDApp):
             curImg = cv2.imread(f'{path}/{cl}')
             images.append(curImg)
             className.append(os.path.splitext(cl)[0])
+
         print(className)
 
 
@@ -231,12 +292,15 @@ class DemoApp(MDApp):
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 encode = face_recognition.face_encodings(img)[0]
                 encodelist.append(encode)
+
             return encodelist
 
         def markattend(name):
             with open('Attendance.csv', 'r+') as f:
                 mydataList = f.readline()
                 namelist = []
+
+
                 for line in mydataList:
                     entry = line.split(',')
                     namelist.append(entry[0])
@@ -248,11 +312,9 @@ class DemoApp(MDApp):
                     data.drop_duplicates(subset="Name", keep="first", inplace=True)
                     df = data
                     df.to_csv("output.csv")
-
         toast("Attendance has been recorded Successfully")
         encodelistknown = findencodings(images)
-
-        print("Encoding Completed !!!")
+        print("Encoding Completed!!!")
 
         def Sounder(name):
             date_string = datetime.now().strftime("%d%m%Y%H%M%S")
@@ -311,6 +373,8 @@ class DemoApp(MDApp):
         self.screen = Builder.load_string(newScreen)
         self.theme_cls.primary_palette = "Blue"
         self.theme_cls.theme_style = "Light"
+
+
         # label
 
         #l1 = MDLabel(text="ML Based Smart Attendance System ", halign="auto", theme_text_color="Custom",
@@ -334,6 +398,23 @@ class DemoApp(MDApp):
         return self.screen
 
 
+    def on_start(self):
+        path = "ImagesBasic"
+
+        myList = os.listdir(path)
+        # print(myList)
+
+
+        for images in os.listdir(path):
+            joined = os.path.join(path, images)
+
+            #print(image)
+            items = self.screen.get_screen('Gall').ids.con.add_widget(
+            ThreeLineAvatarListItem(text=f'{images}'))
+
+            ima = self.screen.get_screen('Gall').ids.im.add_widget(
+                ImageLeftWidget(source="facebook.png")
+            )
 
 
 DemoApp().run()
