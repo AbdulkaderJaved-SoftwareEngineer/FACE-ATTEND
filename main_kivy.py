@@ -9,6 +9,7 @@ from kivymd.uix.button import MDFlatButton, MDFloatingActionButton, MDRectangleF
 from kivy.uix.screenmanager import Screen,ScreenManager
 from kivy.uix.scrollview import ScrollView
 from kivymd.uix.textfield import MDTextField,MDTextFieldRect
+import pandas as pd
 from kivy.lang import Builder
 from kivymd.toast import toast
 import cv2
@@ -19,7 +20,7 @@ import os
 from datetime import datetime
 from tkinter import *
 from tkinter import messagebox
-import pandas as pd
+
 from kivymd.uix.dialog import MDDialog
 from kivy.core.window import Window
 from playsound import playsound
@@ -27,6 +28,9 @@ from gtts import gTTS
 
 
 Window.size = (800,400)
+Window.title = "Smart Attendance System Using Face Recognition"
+
+
 
 newScreen = """
 ScreenManager:
@@ -204,6 +208,7 @@ sm.add_widget(Gallery(name = 'Gall'))
 
 
 class DemoApp(MDApp):
+    title = "Smart Attendance System using Face Recognition"
     #this is for opening the excel sheet
 
     def op(self):
@@ -311,7 +316,7 @@ class DemoApp(MDApp):
                     data = pd.read_csv("Attendance.csv")
                     data.drop_duplicates(subset="Name", keep="first", inplace=True)
                     df = data
-                    df.to_csv("output.csv")
+                    df.to_csv("New_Att.csv")
         toast("Attendance has been recorded Successfully")
         encodelistknown = findencodings(images)
         print("Encoding Completed!!!")
