@@ -1,6 +1,7 @@
 from tkinter.constants import COMMAND
 from typing import Text
 import self as self
+from kivy import Config
 from kivy.properties import ListProperty
 from kivy.uix.scrollview import ScrollView
 from kivymd.uix.snackbar import Snackbar
@@ -37,7 +38,7 @@ from kivymd_extensions.sweetalert import SweetAlert
 
 Window.size = (800,400)
 Window.title = "Smart Attendance System Using Face Recognition"
-
+Config.set('kivy','window_icon','path/to/logo.png')
 
 
 newScreen = """
@@ -70,7 +71,8 @@ ScreenManager:
         orientation : 'vertical'
         MDToolbar:
             left_action_items:[["face-recognition"]]
-            title : 'SMART ATTENDANCE SYSTEM USING FACE RECOGNITION'
+            title : "Smart Attendance System Using Face Recognition "
+                
         MDLabel:
             text:""
             halign : 'center'
@@ -84,13 +86,12 @@ ScreenManager:
     
     MDRectangleFlatIconButton:
         icon : 'account-supervisor-outline'
-        text:'Add a New Profile'
+        text:'    Add a New Profile        '
          
         
         pos_hint:{'center_x':0.2 , 'center_y':0.7}
         elevation:20
-        theme_icon_color: "Custom"
-        icon_color: 0,0,0,1 
+        
         on_release : 
             
             root.manager.current = 'Profile'
@@ -103,7 +104,7 @@ ScreenManager:
         
     MDRectangleFlatIconButton:
         icon : 'calendar'
-        text:'  Take Attendance  ' 
+        text:'    Take Attendance        ' 
         pos_hint:{'center_x':0.2 , 'center_y':0.5}
         on_release : app.att(self)
     
@@ -141,7 +142,7 @@ ScreenManager:
          
     MDRectangleFlatIconButton:
         icon : 'group'
-        text:'  See Peoples ' 
+        text:'        See Peoples        ' 
         
         pos_hint:{'center_x':0.2 , 'center_y':0.3}
         on_release :
@@ -164,7 +165,7 @@ ScreenManager:
         mode: "rectangle"
         fill_color: 0, 0, 0, .4
         id : naam
-        icon_right: "account-lock-outline"
+        icon_right: "account-supervisor-outline"
         icon_right_color: app.theme_cls.primary_color
         hint_text : 'Enter your Name' 
         pos_hint:{'center_x':0.7 , 'center_y':0.7}
@@ -176,7 +177,7 @@ ScreenManager:
         mode: "rectangle"
         fill_color: 0, 0, 0, .4
         hint_text : 'Enter your ID Number '
-        icon_right: "account-supervisor-outline"
+        icon_right: "account-lock-outline"
         icon_right_color: app.theme_cls.primary_color
         pos_hint:{'center_x':0.7 , 'center_y':0.5}
         required :True
@@ -191,7 +192,7 @@ ScreenManager:
     MDRectangleFlatIconButton:
     
         icon : "camera"
-        text : 'Capture'
+        text : 'Capture  '
         tooltip_text : "Open the Camera"
         
         pos_hint:{'center_x':0.8 , 'center_y':0.3}
@@ -481,6 +482,7 @@ class DemoApp(MDApp):
         self.screen = Builder.load_string(newScreen)
         self.theme_cls.primary_palette = "Blue"
         self.theme_cls.theme_style = "Light"
+
 
 
 
