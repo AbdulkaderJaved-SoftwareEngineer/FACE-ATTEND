@@ -1,4 +1,6 @@
 # FACE-ATTEND
+I have updated the code on 4th March 2022
+
 Face Attendance project
 
 I have Updated the code  and added the new Feature called SnackBar instead of toast for attendance completion alert
