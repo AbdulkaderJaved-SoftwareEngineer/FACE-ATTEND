@@ -1,4 +1,4 @@
-ffrom tkinter.constants import COMMAND
+from tkinter.constants import COMMAND
 from typing import Text
 import self as self
 from kivy import Config
@@ -108,7 +108,7 @@ ScreenManager:
         pos_hint:{'center_x':0.2 , 'center_y':0.5}
         on_release : app.att(self)
     MDLabel:
-        text:"Developed by AK and Group "
+        id:registered
         font_style:'H6'
         pos_hint : {'center_x':0.8,'center_y':0.1}
         text_color:(0,0,1,1)
@@ -293,23 +293,6 @@ class DemoApp(MDApp):
         file_loc = "C:\Desktop\Face_Attend\Main_Att.csv"
         os.system('"%s"' % file_loc)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         # this for ScreenShot
 
     def click(self,obj):
@@ -492,6 +475,9 @@ class DemoApp(MDApp):
         self.screen = Builder.load_string(newScreen)
         self.theme_cls.primary_palette = "Blue"
         self.theme_cls.theme_style = "Light"
+        structure = len(os.listdir("ImagesBasic"))
+
+        self.screen.get_screen('menu').ids.registered.text=f'Active Registered Peoples : {structure}'
 
 
 
