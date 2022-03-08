@@ -1,21 +1,24 @@
-from tkinter.constants import COMMAND
+ffrom tkinter.constants import COMMAND
 from typing import Text
 import self as self
 from kivy import Config
-from kivy.properties import ListProperty
+from kivy.properties import ListProperty, StringProperty
+from kivy.uix.modalview import ModalView
 from kivy.uix.scrollview import ScrollView
 from kivymd.uix.snackbar import Snackbar
 from kivymd.uix.behaviors import HoverBehavior
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine,MDExpansionPanelThreeLine
-from kivymd.uix.list import MDList, ThreeLineListItem, ThreeLineAvatarListItem, OneLineListItem, OneLineIconListItem,TwoLineIconListItem
-from kivymd.uix.list import IconLeftWidget,ImageLeftWidget
+from kivymd.uix.list import MDList, ThreeLineListItem, ThreeLineAvatarListItem, OneLineListItem, OneLineIconListItem, \
+    TwoLineIconListItem, OneLineAvatarIconListItem
+from kivymd.uix.list import IconLeftWidget,ImageLeftWidget,IconRightWidget,IRightBodyTouch
 from kivy.uix.button import Button
 from kivymd.app import MDApp
 from kivymd.uix.label import MDLabel
 from kivymd.uix.button import MDFlatButton, MDFloatingActionButton, MDFillRoundFlatIconButton,MDRectangleFlatButton, MDIconButton,MDRaisedButton
 from kivy.uix.screenmanager import Screen,ScreenManager
 from kivy.uix.scrollview import ScrollView
+from kivy.uix.image import Image
 from kivymd.uix.textfield import MDTextField,MDTextFieldRect
 from openpyxl import load_workbook
 import pandas as pd
@@ -33,30 +36,27 @@ from kivymd.uix.dialog import MDDialog
 from kivy.core.window import Window
 from playsound import playsound
 from gtts import gTTS
+
 from kivymd_extensions.sweetalert import SweetAlert
 
 
 Window.size = (800,400)
 Window.title = "Smart Attendance System Using Face Recognition"
-Config.set('kivy','window_icon','path/to/logo.png')
+
 
 
 newScreen = """
-<Hbutton>:
-    text:"Get Weather"
-    background_color: 0,0,0,0
-    size_hint : .46,.11
-    pos_hint:{'center_x':.5,'center_y':.2}
-    canvas.before:
-        Color:
-            rgb:self.background
-        RoundedRectangle:
-            size:self.size
-            pos:self.pos
-            radius : [5]
 
-<Content>:
-    adaptive_height: True
+
+
+<ListwithCheckbox>:
+    IconLeftWidget:
+        icon : root.icon
+        
+    IconRightWidget:
+        icon : "delete"
+        on_release:app.dele(root)
+    
    
 ScreenManager:
    
@@ -107,6 +107,12 @@ ScreenManager:
         text:'    Take Attendance        ' 
         pos_hint:{'center_x':0.2 , 'center_y':0.5}
         on_release : app.att(self)
+    MDLabel:
+        text:"Developed by AK and Group "
+        font_style:'H6'
+        pos_hint : {'center_x':0.8,'center_y':0.1}
+        text_color:(0,0,1,1)
+        theme_text_color: 'Custom'
     
     
     
@@ -190,7 +196,7 @@ ScreenManager:
         
     
     MDRectangleFlatIconButton:
-    
+        widget_style:'desktop'
         icon : "camera"
         text : 'Capture  '
         tooltip_text : "Open the Camera"
@@ -220,14 +226,16 @@ ScreenManager:
         Image :
             source : "adduser.png"
             pos_hint: {'center_x':0.3,'center_y':0.2}
-            size_hint : (3,3)
+            size_hint : (5,5)
             
  
  
         
 <Gallery>
     name:'Gall'
+
     ScrollView:
+        
         MDGridLayout:
             id:box
             cols:1
@@ -260,10 +268,14 @@ class MenuScreen(Screen):
 class Content(MDBoxLayout):
     pass
 
+
+
 class ProfileScreen(Screen):
     pass
 class Gallery(Screen):
     pass
+class ListwithCheckbox(OneLineAvatarIconListItem):
+    icon = StringProperty("android")
 
 sm = ScreenManager()
 sm.add_widget(MenuScreen(name  = 'menu'))
@@ -456,9 +468,6 @@ class DemoApp(MDApp):
                     cv2.putText(img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
                     markattend(name)
 
-
-
-
                 else:
                     name = className[matchIndex].upper()
                     # print(name)
@@ -473,6 +482,7 @@ class DemoApp(MDApp):
             k = cv2.waitKey(1)
             if k == ord("q"):
                 break
+
 
 
     # this is for main Screen
@@ -508,6 +518,39 @@ class DemoApp(MDApp):
 
         return self.screen
 
+    def dele(self, widget):
+
+        pth = "ImagesBasic"
+        for images in os.listdir(pth):
+            joined = os.path.join(pth, images)
+
+        self.screen.get_screen('Gall').ids.box.remove_widget(widget)
+        print("Item Deleted Sucessfully")
+        print(joined)
+        os.remove(joined)
+
+        snackbar = Snackbar(
+            text=f"Profile Deleted {images}  ",
+            snackbar_x="20dp",
+            bg_color=(0, 1, 0, 1),
+            snackbar_y="20dp",
+        )
+        snackbar.size_hint_x = (
+                                       Window.width - (snackbar.snackbar_x * 2)
+                               ) / Window.width
+        snackbar.buttons = [
+            MDFlatButton(
+                text="OK",
+                text_color=(1, 1, 1, 1),
+                on_release=snackbar.dismiss,
+            ),
+
+        ]
+
+        snackbar.open()
+
+
+
 
     def on_start(self):
         pth = "ImagesBasic"
@@ -516,16 +559,10 @@ class DemoApp(MDApp):
 
         for images in os.listdir(pth):
             joined = os.path.join(pth, images)
+            text = images
 
             self.screen.get_screen('Gall').ids.box.add_widget(
-                MDExpansionPanel(
-                    opening_transition = 'out_cubic',
-                    icon=f'{joined}',
-                    content=Content(),
-
-                    panel_cls=MDExpansionPanelOneLine(
-                        text=f'{images}',
-                    ))
+                ListwithCheckbox(text=f"{text}",icon=f"{joined}")
             )
 
 
