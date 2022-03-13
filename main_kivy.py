@@ -1,7 +1,10 @@
 from tkinter.constants import COMMAND
 from typing import Text
+
+import notification
 import self as self
 from kivy import Config
+from kivy.garden.notification import Notification
 from kivy.properties import ListProperty, StringProperty
 from kivy.uix.modalview import ModalView
 from kivy.uix.scrollview import ScrollView
@@ -14,6 +17,7 @@ from kivymd.uix.list import MDList, ThreeLineListItem, ThreeLineAvatarListItem, 
 from kivymd.uix.list import IconLeftWidget,ImageLeftWidget,IconRightWidget,IRightBodyTouch
 from kivy.uix.button import Button
 from kivymd.app import MDApp
+
 from kivymd.uix.label import MDLabel
 from kivymd.uix.button import MDFlatButton, MDFloatingActionButton, MDFillRoundFlatIconButton,MDRectangleFlatButton, MDIconButton,MDRaisedButton
 from kivy.uix.screenmanager import Screen,ScreenManager
@@ -36,13 +40,13 @@ from kivymd.uix.dialog import MDDialog
 from kivy.core.window import Window
 from playsound import playsound
 from gtts import gTTS
-
+from  Voice_assistant import voice
 from kivymd_extensions.sweetalert import SweetAlert
 
 
 Window.size = (800,400)
 Window.title = "Smart Attendance System Using Face Recognition"
-
+Window.resizeable = False
 
 
 newScreen = """
@@ -327,6 +331,11 @@ class DemoApp(MDApp):
                 ])
                 self.soundplayer()
                 self.dlog.open()
+                Notification().open(
+                    title="New Profile Added",
+                    
+                    message = f"{hello} has been added"
+                )
 
 
                 img_c += 1
@@ -342,13 +351,14 @@ class DemoApp(MDApp):
     def soundplayer(self):
         username1 = self.root.get_screen('Profile').ids.naam.text
         username2 = self.root.get_screen('Profile').ids.rollno.text
-        audio = gTTS(" Your Profile  has been saved in our dataset    " + username1,lang='en')
-        AudioSave = str(username1) + ".mp3"
+        voice("Thank you, Your profile has been Registered"+str(username1))
+        #audio = gTTS(" Your Profile  has been saved in our dataset    " + username1,lang='en')
+        #AudioSave = str(username1) + ".mp3"
 
-        audio.save(AudioSave)
+        #audio.save(AudioSave)
 
-        playsound(AudioSave)
-        os.remove(AudioSave)
+        #playsound(AudioSave)
+        #os.remove(AudioSave)
 
     def att(self,obj):
 
@@ -413,6 +423,7 @@ class DemoApp(MDApp):
         ]
 
         snackbar.open()
+
         encodelistknown = findencodings(images)
         print("Encoding Completed!!!")
 
@@ -451,6 +462,7 @@ class DemoApp(MDApp):
                     cv2.putText(img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
                     markattend(name)
 
+
                 else:
                     name = className[matchIndex].upper()
                     # print(name)
@@ -460,11 +472,13 @@ class DemoApp(MDApp):
                     cv2.rectangle(img, (x1, y1), (x2, y2), (255,0,0), 2)
                     cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (255,0,0), cv2.FILLED)
                     cv2.putText(img, unknown, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
-                    Sounder(unknown)
-            cv2.imshow('webcam', img)
+                    voice(unknown)
+            cv2.imshow('Recognizer Camera', img)
             k = cv2.waitKey(1)
             if k == ord("q"):
+                self.notify()
                 break
+
 
 
 
@@ -511,9 +525,17 @@ class DemoApp(MDApp):
             joined = os.path.join(pth, images)
 
         self.screen.get_screen('Gall').ids.box.remove_widget(widget)
+        Notification().open(
+            title="Item Deleted Successfully",
+
+            message=f"{images} profile Deleted",
+
+        )
         print("Item Deleted Sucessfully")
         print(joined)
         os.remove(joined)
+
+
 
         snackbar = Snackbar(
             text=f"Profile Deleted {images}  ",
@@ -536,7 +558,13 @@ class DemoApp(MDApp):
         snackbar.open()
 
 
+    def notify(self):
+        Notification().open(
+            title = "Attendance Completed!",
+            message = "Thank you ! Attendance has been Updated",
+            timeout = 5,
 
+        )
 
     def on_start(self):
         pth = "ImagesBasic"
