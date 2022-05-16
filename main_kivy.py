@@ -40,7 +40,7 @@ from kivymd.uix.dialog import MDDialog
 from kivy.core.window import Window
 from playsound import playsound
 from gtts import gTTS
-from  Voice_assistant import voice
+
 from kivymd_extensions.sweetalert import SweetAlert
 
 
@@ -75,6 +75,7 @@ ScreenManager:
         orientation : 'vertical'
         MDToolbar:
             left_action_items:[["face-recognition"]]
+            
             title : "Smart Attendance System Using Face Recognition "
                 
         MDLabel:
@@ -115,41 +116,15 @@ ScreenManager:
         id:registered
         font_style:'H6'
         pos_hint : {'center_x':0.8,'center_y':0.1}
-        text_color:(0,0,1,1)
+        text_color:(59/255,89/255,152/255)
         theme_text_color: 'Custom'
-    
-    
-    
- 
+    MDLabel:
+        text : "-Developed By Abdulkader and Group-"
+        font_style:'Caption'
+        pos_hint : {'center_x':0.8,'center_y':0.03}
+        text_color:(59/255,89/255,152/255)
+        theme_text_color: 'Custom'  
         
-            
-  
-        
-        
-    
-                    
- 
-   
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
     MDRectangleFlatIconButton:
         icon : 'group'
         text:'        See Peoples        ' 
@@ -159,14 +134,6 @@ ScreenManager:
             root.manager.transition.direction = 'right'
             root.manager.current = 'Gall'
         
-    
-        
-
-
-
-
-
-
 
 <ProfileScreen>:
     name : 'Profile'
@@ -331,9 +298,10 @@ class DemoApp(MDApp):
                 ])
                 self.soundplayer()
                 self.dlog.open()
+                self.on_start()
                 Notification().open(
+
                     title="New Profile Added",
-                    
                     message = f"{hello} has been added"
                 )
 
@@ -351,7 +319,7 @@ class DemoApp(MDApp):
     def soundplayer(self):
         username1 = self.root.get_screen('Profile').ids.naam.text
         username2 = self.root.get_screen('Profile').ids.rollno.text
-        voice("Thank you, Your profile has been Registered"+str(username1))
+
         #audio = gTTS(" Your Profile  has been saved in our dataset    " + username1,lang='en')
         #AudioSave = str(username1) + ".mp3"
 
@@ -472,7 +440,7 @@ class DemoApp(MDApp):
                     cv2.rectangle(img, (x1, y1), (x2, y2), (255,0,0), 2)
                     cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (255,0,0), cv2.FILLED)
                     cv2.putText(img, unknown, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
-                    voice(unknown)
+
             cv2.imshow('Recognizer Camera', img)
             k = cv2.waitKey(1)
             if k == ord("q"):
@@ -534,6 +502,9 @@ class DemoApp(MDApp):
         print("Item Deleted Sucessfully")
         print(joined)
         os.remove(joined)
+        self.on_start()
+        structure = len(os.listdir("ImagesBasic"))
+        self.screen.get_screen('menu').ids.registered.text = f'Active Registered Peoples : {structure}'
 
 
 
@@ -559,10 +530,20 @@ class DemoApp(MDApp):
 
 
     def notify(self):
+        df = pd.read_csv("Main_Att.csv")
+        df_count = df['Name'].count()
         Notification().open(
+
             title = "Attendance Completed!",
-            message = "Thank you ! Attendance has been Updated",
-            timeout = 5,
+            message = "Thank you ! Attendance has been Updated ",
+            timeout = 30,
+
+        )
+        Notification().open(
+
+            title="No of Students given Attendance",
+            message=f"{df_count} student is present and given there attendance ",
+            timeout=20,
 
         )
 
@@ -579,8 +560,8 @@ class DemoApp(MDApp):
                 ListwithCheckbox(text=f"{text}",icon=f"{joined}")
             )
 
+        structure = len(os.listdir("ImagesBasic"))
+        self.screen.get_screen('menu').ids.registered.text = f'Active Registered Peoples : {structure}'
 
-
-
-
-DemoApp().run()
+if __name__ == '__main__':
+    DemoApp().run()
