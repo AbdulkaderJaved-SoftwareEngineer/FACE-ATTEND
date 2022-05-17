@@ -4,7 +4,7 @@ from typing import Text
 import notification
 import self as self
 from kivy import Config
-from kivy.garden.notification import Notification
+
 from kivy.properties import ListProperty, StringProperty
 from kivy.uix.modalview import ModalView
 from kivy.uix.scrollview import ScrollView
@@ -24,6 +24,7 @@ from kivy.uix.screenmanager import Screen,ScreenManager
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.image import Image
 from kivymd.uix.textfield import MDTextField,MDTextFieldRect
+from matplotlib import pyplot as plt
 from openpyxl import load_workbook
 import pandas as pd
 from kivy.lang import Builder
@@ -133,6 +134,10 @@ ScreenManager:
         on_release :
             root.manager.transition.direction = 'right'
             root.manager.current = 'Gall'
+    MDFloatingActionButton:
+        icon : 'chart-pie'
+        pos_hint:{'center_x':0.1,'center_y':0.3}
+        on_release:app.Attendance_Visualize()
         
 
 <ProfileScreen>:
@@ -299,11 +304,6 @@ class DemoApp(MDApp):
                 self.soundplayer()
                 self.dlog.open()
                 self.on_start()
-                Notification().open(
-
-                    title="New Profile Added",
-                    message = f"{hello} has been added"
-                )
 
 
                 img_c += 1
@@ -396,15 +396,15 @@ class DemoApp(MDApp):
         print("Encoding Completed!!!")
 
 
-        def Sounder(name):
-            date_string = datetime.now().strftime("%d%m%Y%H%M%S")
+        #def Sounder(name):
+           # date_string = datetime.now().strftime("%d%m%Y%H%M%S")
 
-            audio = gTTS(text=name,lang="en")
-            AudioSave = "voice" + date_string + ".mp3"
-            audio.save(AudioSave)
+            #audio = gTTS(text=name,lang="en")
+            #AudioSave = "voice" + date_string + ".mp3"
+           # audio.save(AudioSave)
 
-            playsound(AudioSave)
-            os.remove(AudioSave)
+            #playsound(AudioSave)
+            #os.remove(AudioSave)
 
         cap = cv2.VideoCapture(0)
         while True:
@@ -444,7 +444,6 @@ class DemoApp(MDApp):
             cv2.imshow('Recognizer Camera', img)
             k = cv2.waitKey(1)
             if k == ord("q"):
-                self.notify()
                 break
 
 
@@ -454,6 +453,7 @@ class DemoApp(MDApp):
     def build(self):
         #scrn = Screen()
         # theme the color
+
         self.screen = Builder.load_string(newScreen)
         self.theme_cls.primary_palette = "Blue"
         self.theme_cls.theme_style = "Light"
@@ -493,12 +493,7 @@ class DemoApp(MDApp):
             joined = os.path.join(pth, images)
 
         self.screen.get_screen('Gall').ids.box.remove_widget(widget)
-        Notification().open(
-            title="Item Deleted Successfully",
 
-            message=f"{images} profile Deleted",
-
-        )
         print("Item Deleted Sucessfully")
         print(joined)
         os.remove(joined)
@@ -528,24 +523,20 @@ class DemoApp(MDApp):
 
         snackbar.open()
 
-
-    def notify(self):
+    def Attendance_Visualize(self):
         df = pd.read_csv("Main_Att.csv")
         df_count = df['Name'].count()
-        Notification().open(
+        List_item = len(os.listdir("C:\\Desktop\\Face_Attend\\ImagesBasic"))
+        plt.style.use("fivethirtyeight")
+        slices = [List_item, df_count]
+        labels = ["Absent", "Present"]
+        plt.pie(slices, labels=labels, wedgeprops={"edgecolor": "black"}, shadow=True, autopct='%1.1f%%')
+        plt.title(f"Todays Strength is {slices[1]}")
+        plt.tight_layout()
+        plt.show()
 
-            title = "Attendance Completed!",
-            message = "Thank you ! Attendance has been Updated ",
-            timeout = 30,
 
-        )
-        Notification().open(
 
-            title="No of Students given Attendance",
-            message=f"{df_count} student is present and given there attendance ",
-            timeout=20,
-
-        )
 
     def on_start(self):
         pth = "ImagesBasic"
@@ -559,6 +550,7 @@ class DemoApp(MDApp):
             self.screen.get_screen('Gall').ids.box.add_widget(
                 ListwithCheckbox(text=f"{text}",icon=f"{joined}")
             )
+
 
         structure = len(os.listdir("ImagesBasic"))
         self.screen.get_screen('menu').ids.registered.text = f'Active Registered Peoples : {structure}'
